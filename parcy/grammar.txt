@@ -1,0 +1,110 @@
+single_query: (reading_clause)* return
+
+?return : "RETURN"i projection_body
+projection_body : [DISTINCT] projection_items [order] [skip] [limit]
+projection_items : WILDCARD ("," projection_item)*
+            | projection_item ("," projection_item)*
+projection_item : expression "AS"i variable | expression
+?order : "ORDER"i "BY"i sort_item ("," sort_item)*
+?skip : "SKIP"i expression
+?limit : "LIMIT"i expression
+?sort_item : expression [(ASCENDING | DESCENDING)]
+
+?reading_clause : match // TODO add UNWIND
+match : "MATCH"i pattern [where]
+
+pattern : node_pattern (pattern_element_chain)*
+pattern_element_chain : relationship_pattern node_pattern
+variable : CNAME
+
+?properties : map_literal | parameter
+property_key_name : CNAME
+parameter : "$" (CNAME | INT)
+
+node_pattern : "(" [variable] [node_labels] [properties] ")"
+node_labels : node_label (node_label)*
+node_label : ":" label_name
+label_name : CNAME
+
+relationship_pattern : LEFT_ARROW_HEAD DASH [relationship_detail] DASH RIGHT_ARROW_HEAD
+                | LEFT_ARROW_HEAD DASH [relationship_detail] DASH
+                | DASH [relationship_detail] DASH RIGHT_ARROW_HEAD
+                | DASH [relationship_detail] DASH
+relationship_detail : "[" [variable] [relationship_types] [range_literal] [properties]"]"
+relationship_types : ":" rel_type_name ("|" [":"] rel_type_name)*
+range_literal : "*" [INT] [TWO_DOTS [INT]]
+rel_type_name : CNAME
+
+?where : "WHERE"i expression
+
+?expression : or_expression
+?or_expression : xor_expression ("OR"i xor_expression)*
+?xor_expression : and_expression ("XOR"i and_expression)*
+?and_expression : not_expression ("AND"i not_expression)*
+?not_expression : (NOT)* comparison_expression
+?comparison_expression : string_list_null_predicate_expression (partial_comparison_expression)*
+?partial_comparison_expression : (COMP_EQ string_list_null_predicate_expression)
+                            | (COMP_NEQ string_list_null_predicate_expression)
+                            | (COMP_LT string_list_null_predicate_expression)
+                            | (COMP_GT string_list_null_predicate_expression)
+                            | (COMP_LTE string_list_null_predicate_expression)
+                            | (COMP_GTE string_list_null_predicate_expression)
+?string_list_null_predicate_expression : add_or_subtract_expression ( string_predicate_expression | list_predicate_expression | null_predicate_expression )*
+?string_predicate_expression : (("STARTS"i "WITH"i) | ("ENDS"i "WITH"i) | ("CONTAINS"i)) add_or_subtract_expression
+?list_predicate_expression : "IN" add_or_subtract_expression
+?null_predicate_expression : ("IS"i "NULL"i)| ("IS"i "NOT"i "NULL"i)
+?add_or_subtract_expression : multiply_divide_modulo_expression (("+" multiply_divide_modulo_expression) | ("-" multiply_divide_modulo_expression))*
+?multiply_divide_modulo_expression : power_of_expression (("*" power_of_expression) | ("/" power_of_expression) | ("%" power_of_expression))*
+?power_of_expression : unary_add_or_subtract_expression ("^" unary_add_or_subtract_expression)*
+?unary_add_or_subtract_expression : list_operator_expression | (("+" | "-") list_operator_expression)
+?list_operator_expression : property_or_labels_expression (("[" expression "]") | ("[" [expression] ".." [expression] "]"))*
+?property_or_labels_expression : atom (property_lookup)* [node_labels]
+?property_lookup : "." property_key_name
+atom : literal
+     | parameter
+//         | case_expression
+     | "COUNT"i "(" "*" ")"
+//         | list_comprehension
+//         | pattern_comprehension
+//         | quantifier
+//         | pattern_predicate
+     | parenthesized_expression
+//         | function_invocation
+//         | existential_subquery
+     | variable
+
+literal : "TRUE"i | "FALSE"i
+    | "NULL"i
+    | NUMBER
+    | string_literal
+    | list_literal
+    | map_literal
+
+?string_literal : /'[^'']+'/
+list_literal : "[" [expression ("," expression)*] "]"
+map_literal : "{" [property_key_name ":" expression ("," property_key_name ":" expression)*] "}"
+?parenthesized_expression : "(" expression ")"
+
+WILDCARD : "*"
+TWO_DOTS : ".."
+DISTINCT : "DISTINCT"i
+ASCENDING : "ASCENDING"i | "ASC"i
+DESCENDING : "DESCENDING"i | "DESC"i
+NOT : "NOT"i
+COMP_EQ : "="
+COMP_NEQ : "<>"
+COMP_LT : "<"
+COMP_LTE : "<="
+COMP_GT : ">"
+COMP_GTE : ">="
+LEFT_ARROW_HEAD : "<"
+RIGHT_ARROW_HEAD : ">"
+DASH : "-"
+
+%import common.WS
+%ignore WS
+
+%import common.CNAME
+%import common.INT
+%import common.NUMBER
+%import common.HEXDIGIT
