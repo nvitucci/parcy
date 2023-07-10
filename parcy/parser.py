@@ -3,7 +3,7 @@ import pathlib
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 import lark.exceptions
 from lark import Lark, Transformer, Tree
@@ -75,7 +75,7 @@ class Order:
 @dataclass(frozen=True)
 class Range:
     low: int
-    high: int
+    high: Optional[int]
 
 
 @dataclass
@@ -108,21 +108,21 @@ class NotExpression(Expression):
 @dataclass
 class ProjectionItem:
     expr: Expression
-    var: Variable = None
+    var: Optional[Variable] = None
 
 
 @dataclass
 class Projection:
     projections: List[ProjectionItem]
     distinct: bool = False
-    order: SortItem = None
-    skip: Expression = None
-    limit: Expression = None
+    order: Optional[SortItem] = None
+    skip: Optional[Expression] = None
+    limit: Optional[Expression] = None
 
 
 @dataclass
 class NodePattern:
-    variable: Variable = None
+    variable: Optional[Variable] = None
     labels: List[str] = field(default_factory=list)
     properties: dict = field(default_factory=dict)
 
@@ -130,7 +130,7 @@ class NodePattern:
 @dataclass
 class RelationshipPattern:
     direction: Direction
-    variable: Variable = None
+    variable: Optional[Variable] = None
     types: list = field(default_factory=list)
     range: Range = Range(1, 1)
     properties: dict = field(default_factory=dict)
@@ -145,7 +145,7 @@ class PatternElement:
 @dataclass
 class Match:
     pattern: List[Union[NodePattern, PatternElement]]
-    where: Expression = None
+    where: Optional[Expression] = None
 
 
 @dataclass
