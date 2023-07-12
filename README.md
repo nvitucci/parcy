@@ -1,4 +1,4 @@
-# ParCy: A parser for (Open)Cypher
+# ParCy: A **Par**ser for Open**Cy**pher
 
 ## FAQ
 
