@@ -391,3 +391,42 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+
+    def test_return_no_match(self):
+        query = "RETURN n"
+
+        parser = Parser(query)
+
+        test_qo = Query(
+            [],
+            Projection([ProjectionItem(PropertyLabelExpression(Variable("n")))]),
+        )
+
+        assert parser.query_object == test_qo
+
+    def test_list(self):
+        query = "RETURN [0, 1, 2] AS list"
+
+        parser = Parser(query)
+
+        test_qo = Query(
+            [],
+            Projection(
+                [
+                    ProjectionItem(
+                        PropertyLabelExpression(
+                            Literal(
+                                [
+                                    PropertyLabelExpression(Literal("0")),
+                                    PropertyLabelExpression(Literal("1")),
+                                    PropertyLabelExpression(Literal("2")),
+                                ]
+                            )
+                        ),
+                        Variable("list"),
+                    )
+                ]
+            ),
+        )
+
+        assert parser.query_object == test_qo

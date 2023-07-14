@@ -36,7 +36,7 @@ class Expression(Atom, ABC):
 
 @dataclass
 class Literal(Atom):
-    value: str
+    value: Union[str, list]
 
 
 @dataclass
@@ -229,8 +229,14 @@ class CustomTransformer(Transformer):
             return Literal(c[0].data.value)
         elif isinstance(c[0], Token):
             return Literal(c[0].value)
+        elif isinstance(c[0], list):
+            return Literal(c[0])
         else:
             raise ValueError(f"Unknown type for {c}")
+
+    def list_literal(self, c):
+        print([type(el) for el in c])
+        return [el for el in c]
 
     def map_literal(self, c):
         properties = [el.name for i, el in enumerate(c) if i % 2 == 0]
