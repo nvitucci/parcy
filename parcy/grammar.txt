@@ -75,11 +75,12 @@ atom : literal
 
 literal : "TRUE"i | "FALSE"i
     | "NULL"i
-    | NUMBER
+    | number_literal
     | string_literal
     | list_literal
     | map_literal
 
+number_literal : NUMBER
 ?string_literal : /'[^'']+'/
 list_literal : "[" [expression ("," expression)*] "]"
 map_literal : "{" [property_key_name ":" expression ("," property_key_name ":" expression)*] "}"

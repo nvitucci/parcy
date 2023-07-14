@@ -36,7 +36,7 @@ class Expression(Atom, ABC):
 
 @dataclass
 class Literal(Atom):
-    value: Union[str, list]
+    value: Union[str, int, list]
 
 
 @dataclass
@@ -229,13 +229,17 @@ class CustomTransformer(Transformer):
             return Literal(c[0].data.value)
         elif isinstance(c[0], Token):
             return Literal(c[0].value)
-        elif isinstance(c[0], list):
+        elif isinstance(c[0], list) or isinstance(c[0], int):
             return Literal(c[0])
         else:
             raise ValueError(f"Unknown type for {c}")
 
+    def number_literal(self, c):
+        assert len(c) == 1
+
+        return int(c[0])
+
     def list_literal(self, c):
-        print([type(el) for el in c])
         return [el for el in c]
 
     def map_literal(self, c):
@@ -281,7 +285,6 @@ class CustomTransformer(Transformer):
         upper_bound = None
 
         if c is not None:
-            print(c)
             assert len(c) == 3
 
             # Do not use structural pattern matching to it is compatible with Python < 3.10

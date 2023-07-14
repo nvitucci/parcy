@@ -417,9 +417,9 @@ class TestParser:
                         PropertyLabelExpression(
                             Literal(
                                 [
-                                    PropertyLabelExpression(Literal("0")),
-                                    PropertyLabelExpression(Literal("1")),
-                                    PropertyLabelExpression(Literal("2")),
+                                    PropertyLabelExpression(Literal(0)),
+                                    PropertyLabelExpression(Literal(1)),
+                                    PropertyLabelExpression(Literal(2)),
                                 ]
                             )
                         ),
