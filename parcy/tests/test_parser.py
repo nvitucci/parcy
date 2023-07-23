@@ -227,7 +227,7 @@ class TestParser:
                                 PropertyLabelExpression(Variable("age")),
                                 PartialComparison(
                                     Operator.COMP_EQ,
-                                    PropertyLabelExpression(Literal("42")),
+                                    PropertyLabelExpression(Literal(42)),
                                 ),
                             ),
                         ]
@@ -271,7 +271,7 @@ class TestParser:
                                 PropertyLabelExpression(Variable("age")),
                                 PartialComparison(
                                     Operator.COMP_EQ,
-                                    PropertyLabelExpression(Literal("42")),
+                                    PropertyLabelExpression(Literal(42)),
                                 ),
                             ),
                         ]
@@ -318,7 +318,7 @@ class TestParser:
                                             PropertyLabelExpression(Variable("age")),
                                             PartialComparison(
                                                 Operator.COMP_LT,
-                                                PropertyLabelExpression(Literal("42")),
+                                                PropertyLabelExpression(Literal(42)),
                                             ),
                                         ),
                                         NotExpression(
@@ -326,7 +326,7 @@ class TestParser:
                                                 PropertyLabelExpression(Variable("age")),
                                                 PartialComparison(
                                                     Operator.COMP_GTE,
-                                                    PropertyLabelExpression(Literal("20")),
+                                                    PropertyLabelExpression(Literal(20)),
                                                 ),
                                             ),
                                             True,
@@ -362,7 +362,7 @@ class TestParser:
                             ["Person"],
                             {
                                 "age": PropertyLabelExpression(
-                                    Literal("42"),
+                                    Literal(42),
                                 ),
                                 "name": PropertyLabelExpression(
                                     Literal("'Alice'"),
