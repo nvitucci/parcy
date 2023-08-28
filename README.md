@@ -1,5 +1,22 @@
 # ParCy: a Parser for Cypher
 
+Tool for parsing a Cypher query into Python object and JSON format.
+
+Example Cypher query:
+
+```
+MATCH (n:Person) RETURN n
+```
+
+Resulting Python object:
+
+```
+Query(
+    [Match([NodePattern(Variable("n"), ["Person"])])],
+    Projection([ProjectionItem(PropertyLabelExpression(Variable("n")))]),
+)
+```
+
 ## FAQ
 
 - What version of Cypher does the parser use?
@@ -14,3 +31,4 @@ None. Any similarity with existing code is either coincidental or referenced to 
 
 - Convert to proper package (move `tests` folder out, create `setup.py`/`pyproject.toml`, etc.)
 - Confirm the chosen license is the best one
+- Add query creation/reconstruction
