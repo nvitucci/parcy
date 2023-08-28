@@ -4,7 +4,7 @@
 
 - What version of Cypher does the parser use?
 
-openCypher only (current version is M22). The reference EBNF grammar is downloaded from http://opencypher.org/resources/.
+openCypher only (current version is M23). The reference EBNF grammar is downloaded from http://opencypher.org/resources/.
 
 - How much of the code is AI-generated?
 
