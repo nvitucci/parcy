@@ -13,12 +13,9 @@ if __name__ == "__main__":
         query = args[0]
     else:
         query = """
-            MATCH (n:Person)-[r:KNOWS]->(m:Person)-[:GOES|:WALKS]->(p:Place)
-            WHERE n.name = 'Alice' AND m:Person
-            RETURN *, n, m.name AS nn, p
-            ORDER BY n DESC
-            SKIP 10
-            LIMIT 1
+            MATCH (n:Person)-[r:KNOWS]->(m:Person)
+            WHERE n.name = 'Alice'
+            RETURN *
         """
 
     parser = Parser(query)
