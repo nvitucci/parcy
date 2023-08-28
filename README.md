@@ -13,3 +13,4 @@ None. Any similarity with existing code is either coincidental or referenced to 
 ## TODO
 
 - Convert to proper package (move `tests` folder out, create `setup.py`/`pyproject.toml`, etc.)
+- Confirm the chosen license is the best one
