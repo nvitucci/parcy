@@ -188,9 +188,9 @@ class CustomTransformer(Transformer):
         return NotExpression(expr, is_not)
 
     def projection_body(self, c):
-        assert len(c) == 5
+        print("Here", c)
         return Projection(
-            distinct=True if c[0] is not None else False, projections=c[1], order=c[2], skip=c[3], limit=c[4]
+            distinct=True if len(c) > 1 and c[0] is not None else False, projections=c[1] if len(c) >= 1 else None, order=c[2] if len(c) > 2 else None, skip=c[3] if len(c) > 3 else None, limit=c[4] if len(c) > 4 else None
         )
 
     def projection_items(self, c):
@@ -270,7 +270,7 @@ class CustomTransformer(Transformer):
         return c
 
     def node_pattern(self, c):
-        return NodePattern(c[0], c[1] if c[1] is not None else [], c[2] if c[2] is not None else {})
+        return NodePattern(c[0] if len(c) else None, c[1] if len(c) > 1 and c[1] is not None else [], c[2] if len(c) > 2 and c[2] is not None else {})
 
     def rel_type_name(self, c):
         assert len(c) == 1
@@ -340,7 +340,7 @@ class CustomTransformer(Transformer):
         return c
 
     def match(self, c):
-        return Match(c[0], c[1])
+        return Match(c[0], c[1] if len(c) > 1 else None)
 
     def single_query(self, c):
         return Query(c[:-1], c[-1])
@@ -349,7 +349,7 @@ class CustomTransformer(Transformer):
 with open(pathlib.Path(__file__).parent / "grammar.txt") as f:
     _grammar = "".join(f.readlines())
 
-_parser = Lark(_grammar, start="single_query", parser="lalr")
+_parser = Lark(_grammar, start="single_query", parser="lalr", maybe_placeholders=False)
 
 
 class Parser:
