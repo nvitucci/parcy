@@ -38,15 +38,29 @@ class Expression(Atom, ABC):
 class Literal(Atom):
     value: Union[str, int, list]
 
+    def cypher(self):
+        # TODO: complete
+        return (
+            str(self.value)
+            if isinstance(self.value, str) or isinstance(self.value, int)
+            else f"[{', '.join([el.cypher() for el in self.value])}]"
+        )
+
 
 @dataclass
 class Property:
     name: str
 
+    def cypher(self):
+        return "." + self.name
+
 
 @dataclass
 class Variable(Atom):
     name: str
+
+    def cypher(self):
+        return self.name.strip()
 
 
 @dataclass
@@ -54,17 +68,26 @@ class PartialComparison(Expression):
     op: Operator
     expr: Expression
 
+    def cypher(self):
+        return f"{self.op.value} {self.expr.cypher()}"
+
 
 @dataclass
 class Comparison(Expression):
     expr1: Expression
     expr2: Expression
 
+    def cypher(self):
+        return f"{self.expr1.cypher()} {self.expr2.cypher()}"
+
 
 @dataclass
 class SortItem:
     var: Variable
     direction: str
+
+    def cypher(self):
+        return f"{self.var.cypher()} {self.direction}".strip()
 
 
 @dataclass
@@ -77,26 +100,54 @@ class Range:
     low: int
     high: Optional[int]
 
+    def cypher(self):
+        # TODO: complete
+        if self.low == self.high == 1:
+            return ""
+        elif self.low == 1 and self.high is None:
+            return f"*"
+        elif self.low == 0 and self.high is None:
+            return f"*0.."
+        elif self.low == 1 and self.high > 1:
+            return f"*..{self.high}"
+        elif self.low == self.high:
+            return f"*{self.low}"
+        else:
+            return f"*{self.low} {self.high}"
+
 
 @dataclass
 class BaseExpression(Expression):
     # TODO: is this the best name?
     expr1: object
 
+    def cypher(self):
+        # TODO: complete
+        return f"{self.__class__.__name__}"
+
 
 @dataclass
 class AndExpression(Expression):
     exprs: List[Expression]
+
+    def cypher(self):
+        return f"({' AND '.join([expr.cypher() for expr in self.exprs])})"
 
 
 @dataclass
 class OrExpression(Expression):
     exprs: List[Expression]
 
+    def cypher(self):
+        return f"({' OR '.join([expr.cypher() for expr in self.exprs])})"
+
 
 @dataclass
 class XorExpression(Expression):
     exprs: List[Expression]
+
+    def cypher(self):
+        return f"({' XOR '.join([expr.cypher() for expr in self.exprs])})"
 
 
 @dataclass
@@ -104,11 +155,20 @@ class NotExpression(Expression):
     expr: Expression
     neg: bool = False
 
+    def cypher(self):
+        return f"{'NOT' if self.neg else ''} {self.expr.cypher()}".strip()
+
 
 @dataclass
 class ProjectionItem:
     expr: Expression
     var: Optional[Variable] = None
+
+    def cypher(self):
+        expr = self.expr.cypher()
+        var = " AS " + self.var.cypher() if self.var is not None else ""
+
+        return expr + var
 
 
 @dataclass
@@ -119,12 +179,32 @@ class Projection:
     skip: Optional[Expression] = None
     limit: Optional[Expression] = None
 
+    def cypher(self):
+        proj = [
+            "DISTINCT" if self.distinct else "",
+            " ".join([proj.cypher() if not isinstance(proj, str) else proj for proj in self.projections]),
+            self.order.cypher() if self.order is not None else "",
+            self.skip.cypher() if self.skip is not None else "",
+            self.limit.cypher() if self.limit is not None else "",
+        ]
+
+        return " ".join([el for el in proj]).strip()
+
 
 @dataclass
 class NodePattern:
     variable: Optional[Variable] = None
     labels: List[str] = field(default_factory=list)
     properties: dict = field(default_factory=dict)
+
+    def cypher(self):
+        variable = self.variable.cypher() if self.variable is not None else ""
+        labels = " ".join([":" + label for label in self.labels])
+        properties = (
+            "{" + ", ".join([f"{k}: {v.cypher()}" for k, v in self.properties.items()]) + "}" if self.properties else ""
+        )
+
+        return f"({variable}{labels}{' ' + properties if properties else ''})"
 
 
 @dataclass
@@ -135,11 +215,33 @@ class RelationshipPattern:
     range: Range = Range(1, 1)
     properties: dict = field(default_factory=dict)
 
+    def cypher(self):
+        variable = self.variable.cypher() if self.variable is not None else ""
+        types = "|".join([":" + t for t in self.types])
+        range = self.range.cypher()
+        properties = (
+            "{" + ", ".join([f"{k}: {v.cypher()}" for k, v in self.properties.items()]) + "}" if self.properties else ""
+        )
+
+        pattern = "[" + "".join([variable, types, range, properties]) + "]"
+
+        if self.direction == Direction.NONE:
+            return f"-{pattern}-"
+        elif self.direction == Direction.BOTH:
+            return f"<-{pattern}->"
+        elif self.direction == Direction.LEFT:
+            return f"<-{pattern}-"
+        elif self.direction == Direction.RIGHT:
+            return f"-{pattern}->"
+
 
 @dataclass
 class PatternElement:
     rel: RelationshipPattern
     node: NodePattern
+
+    def cypher(self):
+        return self.rel.cypher() + self.node.cypher()
 
 
 @dataclass
@@ -147,11 +249,20 @@ class Match:
     pattern: List[Union[NodePattern, PatternElement]]
     where: Optional[Expression] = None
 
+    def cypher(self):
+        pattern = "".join([p.cypher() for p in self.pattern])
+        where = f"WHERE {self.where.cypher()}" if self.where is not None else ""
+        return f"MATCH {pattern} {where}".strip()
+
 
 @dataclass
 class Query:
     matches: List[Match]
     ret: Projection
+
+    def cypher(self):
+        matches = " ".join([match.cypher() for match in self.matches])
+        return f"{matches} RETURN {self.ret.cypher()}".strip()
 
 
 @dataclass
@@ -159,6 +270,9 @@ class PropertyLabelExpression(Expression):
     atom: Atom
     properties: list = field(default_factory=list)
     node_labels: list = field(default_factory=list)
+
+    def cypher(self):
+        return f"{self.atom.cypher()}{''.join([prop.cypher() for prop in self.properties])} {' '.join([':' + label for label in self.node_labels])}".strip()
 
 
 class CustomTransformer(Transformer):

@@ -42,6 +42,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_match_label(self):
         query = "MATCH (n:Person) RETURN n"
@@ -53,6 +54,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_match_props(self):
         query = "MATCH (n {name: 'Alice'}) RETURN n"
@@ -78,6 +80,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_match_label_props(self):
         query = "MATCH (n:Person {name: 'Alice'}) RETURN n"
@@ -103,6 +106,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_match_label_props_return_prop(self):
         query = "MATCH (n:Person {name: 'Alice'}) RETURN n.name"
@@ -128,6 +132,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     @pytest.mark.parametrize(
         "pattern, exp_direction",
@@ -165,6 +170,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     @pytest.mark.parametrize(
         "pattern, range_",
@@ -200,6 +206,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_where_or(self):
         query = "MATCH (n:Person) WHERE name = 'Alice' OR age = 42 RETURN n"
@@ -244,6 +251,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_where_and(self):
         query = "MATCH (n:Person) WHERE name = 'Alice' AND age = 42 RETURN n"
@@ -288,6 +296,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_where_or_and_not(self):
         query = "MATCH (n:Person) WHERE name = 'Alice' OR (age < 42 AND NOT age >= 20) RETURN n"
@@ -348,6 +357,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_query(self):
         query = "MATCH (n:Person {name: 'Alice', age: 42})-[r:KNOWS]->(m:Person) RETURN n.name AS fullName"
@@ -391,6 +401,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_return_no_match(self):
         query = "RETURN n"
@@ -403,6 +414,7 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
 
     def test_list(self):
         query = "RETURN [0, 1, 2] AS list"
@@ -430,3 +442,4 @@ class TestParser:
         )
 
         assert parser.query_object == test_qo
+        assert parser.query_object.cypher() == query
