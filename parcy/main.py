@@ -1,9 +1,7 @@
-import dataclasses
-import json
 import sys
 
-from parser import Parser
-
+from lark.reconstruct import Reconstructor
+from parser import Parser, _parser
 
 # TODO: make this more flexible and robust
 if __name__ == "__main__":
@@ -13,15 +11,18 @@ if __name__ == "__main__":
         query = args[0]
     else:
         query = """
-            MATCH (n:Person)-[r:KNOWS]->(m:Person)-[:GOES|:WALKS]->(p:Place)
-            WHERE n.name = 'Alice' AND m:Person
-            RETURN *, n, m.name AS nn, p
-            ORDER BY n DESC
-            SKIP 10
-            LIMIT 1
+            MATCH (n) RETURN n
         """
 
     parser = Parser(query)
 
     print(parser.query_object)
-    print(json.dumps(dataclasses.asdict(parser.query_object), indent=2))
+    print(parser.tree.pretty())
+
+    def postproc(items):
+        for item in items:
+            yield f"{item} "
+
+    print(parser.tree)
+    reconstructed = Reconstructor(_parser).reconstruct(parser.tree, postproc=postproc)
+    print(reconstructed)

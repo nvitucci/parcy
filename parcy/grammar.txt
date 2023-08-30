@@ -56,7 +56,7 @@ rel_type_name : CNAME
 ?add_or_subtract_expression : multiply_divide_modulo_expression (("+" multiply_divide_modulo_expression) | ("-" multiply_divide_modulo_expression))*
 ?multiply_divide_modulo_expression : power_of_expression (("*" power_of_expression) | ("/" power_of_expression) | ("%" power_of_expression))*
 ?power_of_expression : unary_add_or_subtract_expression ("^" unary_add_or_subtract_expression)*
-?unary_add_or_subtract_expression : list_operator_expression | (("+" | "-") list_operator_expression)
+?unary_add_or_subtract_expression : ("+" | "-")? list_operator_expression
 ?list_operator_expression : property_or_labels_expression (("[" expression "]") | ("[" [expression] ".." [expression] "]"))*
 ?property_or_labels_expression : atom (property_lookup)* [node_labels]
 ?property_lookup : "." property_key_name

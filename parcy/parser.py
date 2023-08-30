@@ -188,9 +188,12 @@ class CustomTransformer(Transformer):
         return NotExpression(expr, is_not)
 
     def projection_body(self, c):
-        print("Here", c)
         return Projection(
-            distinct=True if len(c) > 1 and c[0] is not None else False, projections=c[1] if len(c) >= 1 else None, order=c[2] if len(c) > 2 else None, skip=c[3] if len(c) > 3 else None, limit=c[4] if len(c) > 4 else None
+            distinct=True if len(c) > 1 and c[0] is not None else False,
+            projections=c[0] if len(c) >= 1 else None,
+            order=c[1] if len(c) > 2 else None,
+            skip=c[2] if len(c) > 3 else None,
+            limit=c[3] if len(c) > 4 else None,
         )
 
     def projection_items(self, c):
@@ -217,7 +220,9 @@ class CustomTransformer(Transformer):
 
     def property_or_labels_expression(self, c):
         return PropertyLabelExpression(
-            c[0], [el for el in c if isinstance(el, Property)], c[-1] if c[-1] is not None else []
+            c[0],
+            [el for el in c if isinstance(el, Property)],
+            c[-1] if c[-1] is not None else [],
         )
 
     def atom(self, c):
@@ -270,7 +275,11 @@ class CustomTransformer(Transformer):
         return c
 
     def node_pattern(self, c):
-        return NodePattern(c[0] if len(c) else None, c[1] if len(c) > 1 and c[1] is not None else [], c[2] if len(c) > 2 and c[2] is not None else {})
+        return NodePattern(
+            c[0] if len(c) else None,
+            c[1] if len(c) > 1 and c[1] is not None else [],
+            c[2] if len(c) > 2 and c[2] is not None else {},
+        )
 
     def rel_type_name(self, c):
         assert len(c) == 1

@@ -38,7 +38,7 @@ class TestParser:
 
         test_qo = Query(
             [Match([NodePattern(Variable("n"))])],
-            Projection([ProjectionItem(PropertyLabelExpression(Variable("n")))]),
+            Projection([ProjectionItem(Variable('n'), None)]),
         )
 
         assert parser.query_object == test_qo
